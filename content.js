@@ -6,11 +6,9 @@ document.addEventListener('copy', function(e) {
     return;
   }
 
-  // Get the selected text
-  const selectedText = selection.toString().trim();
-
-  // Get the range and extract links
+  let text = '';
   let link = '';
+  let linkElement = null;
 
   if (selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
@@ -22,35 +20,34 @@ document.addEventListener('copy', function(e) {
     // Check if the selection contains or is within a link
     while (element && element !== document.body) {
       if (element.tagName === 'A' && element.href) {
-        link = element.href;
+        linkElement = element;
         break;
       }
       element = element.parentElement;
     }
 
     // If no parent link found, check if selection contains a link
-    if (!link && container.nodeType === 1) {
-      const linkInSelection = container.querySelector('a');
-      if (linkInSelection && linkInSelection.href) {
-        link = linkInSelection.href;
-      }
-    } else if (!link && range.cloneContents) {
+    if (!linkElement && container.nodeType === 1) {
+      linkElement = container.querySelector('a');
+    } else if (!linkElement && range.cloneContents) {
       const fragment = range.cloneContents();
-      const linkInFragment = fragment.querySelector('a');
-      if (linkInFragment && linkInFragment.href) {
-        link = linkInFragment.href;
-      }
+      linkElement = fragment.querySelector('a');
     }
   }
 
-  // If no link found in selection, use the current page URL
-  if (!link) {
+  // If we found a link, use its text and href
+  if (linkElement && linkElement.href) {
+    text = linkElement.textContent.trim();
+    link = linkElement.href;
+  } else {
+    // No link found, use selected text and current page URL
+    text = selection.toString().trim();
     link = window.location.href;
   }
 
   // Store the data
   const entry = {
-    text: selectedText,
+    text: text,
     link: link,
     timestamp: new Date().toISOString()
   };
