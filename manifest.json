@@ -1,12 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Link and Text Copy Tracker",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Captures copied text and links into a CSV format",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
