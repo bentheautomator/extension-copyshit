@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   loadHistory();
 
-  document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+  document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
   document.getElementById('clearBtn').addEventListener('click', clearHistory);
 });
 
@@ -35,12 +35,12 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function downloadCSV() {
+function copyToClipboard() {
   chrome.storage.local.get(['copyHistory'], function(result) {
     const history = result.copyHistory || [];
 
     if (history.length === 0) {
-      showStatus('No data to download');
+      showStatus('No data to copy');
       return;
     }
 
@@ -56,21 +56,12 @@ function downloadCSV() {
       csvContent += `${text},${link},${timestamp}\n`;
     });
 
-    // Create download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const filename = `copy-history-${new Date().toISOString().split('T')[0]}.csv`;
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showStatus('CSV downloaded successfully!');
+    // Copy to clipboard
+    navigator.clipboard.writeText(csvContent).then(() => {
+      showStatus('CSV copied to clipboard!');
+    }).catch(err => {
+      showStatus('Failed to copy: ' + err.message);
+    });
   });
 }
 
