@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Copy History</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+    }
+    .button-container {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #clearBtn {
+      background-color: #f44336;
+    }
+    #clearBtn:hover {
+      background-color: #da190b;
+    }
+    #status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    #status.success {
+      background-color: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .history-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .history-item .text {
+      font-weight: bold;
+      margin-bottom: 5px;
+      word-break: break-word;
+    }
+    .history-item .link {
+      color: #0066cc;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .history-item .link:hover {
+      text-decoration: underline;
+    }
+    #historyList {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .count {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Link & Text Copy Tracker</h1>
+
+  <div class="button-container">
+    <button id="downloadBtn">Download CSV</button>
+    <button id="clearBtn">Clear History</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="count">Total entries: <span id="count">0</span></div>
+
+  <div id="historyList"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
