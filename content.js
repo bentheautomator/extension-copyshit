@@ -29,12 +29,19 @@ document.addEventListener('copy', function(e) {
         // Try multiple methods to get meaningful text for the link
         let text = '';
 
-        // Method 1: innerText (respects visibility and styling)
-        if (linkElement.innerText && linkElement.innerText.trim()) {
+        // Method 1: Look for text in span elements (common on Facebook, LinkedIn, etc)
+        const spanElement = linkElement.querySelector('span');
+        if (spanElement && spanElement.textContent && spanElement.textContent.trim()) {
+          text = spanElement.textContent.trim();
+        }
+
+        // Method 2: innerText (won't work on cloned fragments but try anyway)
+        if (!text && linkElement.innerText && linkElement.innerText.trim()) {
           text = linkElement.innerText.trim();
         }
-        // Method 2: Direct text nodes only (exclude nested elements)
-        else {
+
+        // Method 3: Direct text nodes only (exclude nested elements)
+        if (!text) {
           const directTextNodes = Array.from(linkElement.childNodes)
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .map(node => node.textContent.trim())
@@ -45,22 +52,22 @@ document.addEventListener('copy', function(e) {
           }
         }
 
-        // Method 3: aria-label attribute
+        // Method 4: aria-label attribute
         if (!text && linkElement.getAttribute('aria-label')) {
           text = linkElement.getAttribute('aria-label').trim();
         }
 
-        // Method 4: title attribute
+        // Method 5: title attribute
         if (!text && linkElement.getAttribute('title')) {
           text = linkElement.getAttribute('title').trim();
         }
 
-        // Method 5: textContent as last resort
+        // Method 6: textContent as last resort (may include too much)
         if (!text && linkElement.textContent) {
           text = linkElement.textContent.trim();
         }
 
-        // Method 6: Use URL as fallback
+        // Method 7: Use URL as final fallback
         if (!text) {
           text = linkElement.href;
         }

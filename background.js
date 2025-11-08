@@ -30,11 +30,19 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           if (link.href === linkUrl) {
             let text = '';
 
-            // Try multiple methods to get meaningful text
-            if (link.innerText && link.innerText.trim()) {
+            // Method 1: Look for text in span elements (common on Facebook, LinkedIn, etc)
+            const spanElement = link.querySelector('span');
+            if (spanElement && spanElement.textContent && spanElement.textContent.trim()) {
+              text = spanElement.textContent.trim();
+            }
+
+            // Method 2: Try innerText
+            if (!text && link.innerText && link.innerText.trim()) {
               text = link.innerText.trim();
-            } else {
-              // Get direct text nodes only
+            }
+
+            // Method 3: Get direct text nodes only
+            if (!text) {
               const directTextNodes = Array.from(link.childNodes)
                 .filter(node => node.nodeType === Node.TEXT_NODE)
                 .map(node => node.textContent.trim())
@@ -45,18 +53,25 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               }
             }
 
-            // Fallback to aria-label
+            // Method 4: aria-label
             if (!text && link.getAttribute('aria-label')) {
               text = link.getAttribute('aria-label').trim();
             }
 
-            // Fallback to title
+            // Method 5: title
             if (!text && link.getAttribute('title')) {
               text = link.getAttribute('title').trim();
             }
 
-            console.log('[CONTEXT MENU SCRIPT] Found matching link, text:', text);
-            console.log('[CONTEXT MENU SCRIPT] innerText:', link.innerText);
+            // Method 6: textContent
+            if (!text && link.textContent) {
+              text = link.textContent.trim();
+            }
+
+            console.log('[CONTEXT MENU SCRIPT] Found matching link');
+            console.log('[CONTEXT MENU SCRIPT] Final text:', text);
+            console.log('[CONTEXT MENU SCRIPT] span text:', spanElement?.textContent?.substring(0, 50));
+            console.log('[CONTEXT MENU SCRIPT] innerText:', link.innerText?.substring(0, 50));
             console.log('[CONTEXT MENU SCRIPT] textContent:', link.textContent?.substring(0, 100));
             console.log('[CONTEXT MENU SCRIPT] aria-label:', link.getAttribute('aria-label'));
 
