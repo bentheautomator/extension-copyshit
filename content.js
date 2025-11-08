@@ -26,10 +26,55 @@ document.addEventListener('copy', function(e) {
     if (links.length > 0) {
       // Create one entry per link
       links.forEach((linkElement, index) => {
-        const text = linkElement.textContent.trim();
+        // Try multiple methods to get meaningful text for the link
+        let text = '';
+
+        // Method 1: innerText (respects visibility and styling)
+        if (linkElement.innerText && linkElement.innerText.trim()) {
+          text = linkElement.innerText.trim();
+        }
+        // Method 2: Direct text nodes only (exclude nested elements)
+        else {
+          const directTextNodes = Array.from(linkElement.childNodes)
+            .filter(node => node.nodeType === Node.TEXT_NODE)
+            .map(node => node.textContent.trim())
+            .filter(text => text.length > 0);
+
+          if (directTextNodes.length > 0) {
+            text = directTextNodes.join(' ');
+          }
+        }
+
+        // Method 3: aria-label attribute
+        if (!text && linkElement.getAttribute('aria-label')) {
+          text = linkElement.getAttribute('aria-label').trim();
+        }
+
+        // Method 4: title attribute
+        if (!text && linkElement.getAttribute('title')) {
+          text = linkElement.getAttribute('title').trim();
+        }
+
+        // Method 5: textContent as last resort
+        if (!text && linkElement.textContent) {
+          text = linkElement.textContent.trim();
+        }
+
+        // Method 6: Use URL as fallback
+        if (!text) {
+          text = linkElement.href;
+        }
+
         const link = linkElement.href;
 
-        console.log(`[COPY EVENT] Link ${index + 1}:`, { text, link });
+        console.log(`[COPY EVENT] Link ${index + 1}:`, {
+          text,
+          link,
+          innerText: linkElement.innerText?.substring(0, 50),
+          textContent: linkElement.textContent?.substring(0, 50),
+          ariaLabel: linkElement.getAttribute('aria-label'),
+          title: linkElement.getAttribute('title')
+        });
 
         if (text && link) {
           entries.push({

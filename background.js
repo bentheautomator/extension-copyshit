@@ -25,10 +25,42 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         const links = document.querySelectorAll('a[href]');
         console.log('[CONTEXT MENU SCRIPT] Looking for linkUrl:', linkUrl);
         console.log('[CONTEXT MENU SCRIPT] Total links on page:', links.length);
+
         for (let link of links) {
           if (link.href === linkUrl) {
-            console.log('[CONTEXT MENU SCRIPT] Found matching link, text:', link.textContent.trim());
-            return link.textContent.trim();
+            let text = '';
+
+            // Try multiple methods to get meaningful text
+            if (link.innerText && link.innerText.trim()) {
+              text = link.innerText.trim();
+            } else {
+              // Get direct text nodes only
+              const directTextNodes = Array.from(link.childNodes)
+                .filter(node => node.nodeType === Node.TEXT_NODE)
+                .map(node => node.textContent.trim())
+                .filter(t => t.length > 0);
+
+              if (directTextNodes.length > 0) {
+                text = directTextNodes.join(' ');
+              }
+            }
+
+            // Fallback to aria-label
+            if (!text && link.getAttribute('aria-label')) {
+              text = link.getAttribute('aria-label').trim();
+            }
+
+            // Fallback to title
+            if (!text && link.getAttribute('title')) {
+              text = link.getAttribute('title').trim();
+            }
+
+            console.log('[CONTEXT MENU SCRIPT] Found matching link, text:', text);
+            console.log('[CONTEXT MENU SCRIPT] innerText:', link.innerText);
+            console.log('[CONTEXT MENU SCRIPT] textContent:', link.textContent?.substring(0, 100));
+            console.log('[CONTEXT MENU SCRIPT] aria-label:', link.getAttribute('aria-label'));
+
+            return text || link.href;
           }
         }
         console.log('[CONTEXT MENU SCRIPT] No matching link found');
