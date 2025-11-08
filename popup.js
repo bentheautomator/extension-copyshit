@@ -39,6 +39,8 @@ function copyToClipboard() {
   chrome.storage.local.get(['copyHistory'], function(result) {
     const history = result.copyHistory || [];
 
+    console.log('Copy history:', history);
+
     if (history.length === 0) {
       showStatus('No data to copy');
       return;
@@ -56,10 +58,13 @@ function copyToClipboard() {
       csvContent += `${text},${link},${timestamp}\n`;
     });
 
+    console.log('CSV content to copy:', csvContent);
+
     // Copy to clipboard
     navigator.clipboard.writeText(csvContent).then(() => {
       showStatus('CSV copied to clipboard!');
     }).catch(err => {
+      console.error('Clipboard error:', err);
       showStatus('Failed to copy: ' + err.message);
     });
   });

@@ -52,10 +52,14 @@ document.addEventListener('copy', function(e) {
     timestamp: new Date().toISOString()
   };
 
+  console.log('Captured copy event:', entry);
+
   // Save to chrome storage
   chrome.storage.local.get(['copyHistory'], function(result) {
     const history = result.copyHistory || [];
     history.push(entry);
-    chrome.storage.local.set({ copyHistory: history });
+    chrome.storage.local.set({ copyHistory: history }, function() {
+      console.log('Saved to storage. Total entries:', history.length);
+    });
   });
 });
