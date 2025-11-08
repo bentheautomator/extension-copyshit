@@ -110,11 +110,29 @@ document.addEventListener('copy', function(e) {
     chrome.storage.local.get(['copyHistory'], function(result) {
       const history = result.copyHistory || [];
       console.log('[COPY EVENT] Current history length:', history.length);
-      history.push(...entries); // Add all entries
-      console.log('[COPY EVENT] New history length:', history.length);
-      chrome.storage.local.set({ copyHistory: history }, function() {
-        console.log('[COPY EVENT] ✓ Saved to storage. Total entries now:', history.length);
+
+      // Filter out duplicates
+      const newEntries = entries.filter(entry => {
+        const isDuplicate = history.some(existing =>
+          existing.text === entry.text && existing.link === entry.link
+        );
+        if (isDuplicate) {
+          console.log('[COPY EVENT] Skipping duplicate:', entry.text, entry.link);
+        }
+        return !isDuplicate;
       });
+
+      console.log('[COPY EVENT] New unique entries to add:', newEntries.length);
+
+      if (newEntries.length > 0) {
+        history.push(...newEntries); // Add only unique entries
+        console.log('[COPY EVENT] New history length:', history.length);
+        chrome.storage.local.set({ copyHistory: history }, function() {
+          console.log('[COPY EVENT] ✓ Saved to storage. Total entries now:', history.length);
+        });
+      } else {
+        console.log('[COPY EVENT] No new entries to save (all duplicates)');
+      }
     });
   }
 });

@@ -115,11 +115,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         chrome.storage.local.get(['copyHistory'], (result) => {
           const history = result.copyHistory || [];
           console.log('[CONTEXT MENU] Current history length:', history.length);
-          history.push(entry);
-          console.log('[CONTEXT MENU] New history length:', history.length);
-          chrome.storage.local.set({ copyHistory: history }, () => {
-            console.log('[CONTEXT MENU] ✓ Saved. Total entries:', history.length);
-          });
+
+          // Check for duplicate
+          const isDuplicate = history.some(existing =>
+            existing.text === entry.text && existing.link === entry.link
+          );
+
+          if (isDuplicate) {
+            console.log('[CONTEXT MENU] ✗ Skipping duplicate entry');
+          } else {
+            history.push(entry);
+            console.log('[CONTEXT MENU] New history length:', history.length);
+            chrome.storage.local.set({ copyHistory: history }, () => {
+              console.log('[CONTEXT MENU] ✓ Saved. Total entries:', history.length);
+            });
+          }
         });
       } else {
         console.log('[CONTEXT MENU] ✗ No text or link to save');
@@ -136,8 +146,18 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         console.log('[CONTEXT MENU] Using fallback entry:', entry);
         chrome.storage.local.get(['copyHistory'], (result) => {
           const history = result.copyHistory || [];
-          history.push(entry);
-          chrome.storage.local.set({ copyHistory: history });
+
+          // Check for duplicate in fallback
+          const isDuplicate = history.some(existing =>
+            existing.text === entry.text && existing.link === entry.link
+          );
+
+          if (!isDuplicate) {
+            history.push(entry);
+            chrome.storage.local.set({ copyHistory: history });
+          } else {
+            console.log('[CONTEXT MENU] ✗ Fallback: Skipping duplicate entry');
+          }
         });
       }
     });
